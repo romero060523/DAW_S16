@@ -46,6 +46,15 @@ public class Pedido {
     @Column(length = 20)
     private TipoServicio tipoServicio;
 
+    // ========== CAMPOS DE PAGO ==========
+    @Column(length = 100)
+    private String stripePaymentIntentId;
+
+    @Column(length = 20)
+    private String paymentStatus; // PENDING, PAID, FAILED, CASH
+
+    private LocalDateTime paidAt;
+
     // Relación OneToMany con DetallePedido - RELACIÓN PRINCIPAL
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<DetallePedido> detalles = new ArrayList<>();
@@ -157,5 +166,30 @@ public class Pedido {
 
     public void setDetalles(List<DetallePedido> detalles) {
         this.detalles = detalles;
+    }
+
+    // ========== GETTERS Y SETTERS DE PAGO ==========
+    public String getStripePaymentIntentId() {
+        return stripePaymentIntentId;
+    }
+
+    public void setStripePaymentIntentId(String stripePaymentIntentId) {
+        this.stripePaymentIntentId = stripePaymentIntentId;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public LocalDateTime getPaidAt() {
+        return paidAt;
+    }
+
+    public void setPaidAt(LocalDateTime paidAt) {
+        this.paidAt = paidAt;
     }
 }

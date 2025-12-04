@@ -523,7 +523,34 @@
             </div>
           </div>
 
-          <!-- Detalles de Consumo -->
+          <!-- Información del Pago -->
+          <div class="info-section" th:if="${pedido.paymentStatus != null}">
+            <h3>
+              <i class="bi bi-credit-card-2-front"></i>
+              Información del Pago
+            </h3>
+            <div class="info-row">
+              <strong>Método de Pago:</strong>
+              <span class="info-value">
+                <span th:if="${pedido.paymentStatus == 'PAID'}" style="color: #667eea;">
+                  <i class="bi bi-credit-card"></i> Tarjeta (Stripe)
+                </span>
+                <span th:if="${pedido.paymentStatus == 'CASH'}" style="color: #4caf50;">
+                  <i class="bi bi-cash-coin"></i> Efectivo
+                </span>
+              </span>
+            </div>
+            <div class="info-row" th:if="${pedido.stripePaymentIntentId != null}">
+              <strong>ID Transacción:</strong>
+              <span class="info-value" style="font-family: monospace;" 
+                    th:text="${pedido.stripePaymentIntentId}">pi_xxx</span>
+            </div>
+            <div class="info-row" th:if="${pedido.paidAt != null}">
+              <strong>Fecha de Pago:</strong>
+              <span class="info-value" 
+                    th:text="${#temporals.format(pedido.paidAt, 'dd/MM/yyyy HH:mm')}">01/01/2025</span>
+            </div>
+          </div>
           <div class="detalles-section">
             <h3>
               <i class="bi bi-cart-check-fill"></i>

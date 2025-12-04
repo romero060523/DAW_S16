@@ -485,16 +485,28 @@
                 </div>
               </td>
               <td style="text-align: center">
-                <form
-                  th:action="@{/pedido/{id}/cerrar(id=${p.id})}"
-                  method="post"
-                  onsubmit="return confirm('¿Cerrar este pedido? Se generará la factura.');"
-                >
-                  <button type="submit" class="btn-cerrar">
-                    <i class="bi bi-cash-coin"></i>
-                    Cerrar y Cobrar
-                  </button>
-                </form>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                  <!-- Botón Pagar con Tarjeta (Stripe) -->
+                  <a th:href="@{/pedido/{id}/pagar(id=${p.id})}" 
+                     class="btn-cerrar" 
+                     style="background: linear-gradient(135deg, #667eea, #764ba2); text-decoration: none;">
+                    <i class="bi bi-credit-card-2-front"></i>
+                    Pagar con Tarjeta
+                  </a>
+                  
+                  <!-- Botón Cobrar Efectivo -->
+                  <form
+                    th:action="@{/pedido/{id}/cerrar(id=${p.id})}"
+                    method="post"
+                    onsubmit="return confirm('¿Cobrar en efectivo? Se generará la factura.');"
+                    style="margin: 0;"
+                  >
+                    <button type="submit" class="btn-cerrar" style="width: 100%; background: linear-gradient(135deg, #4caf50, #388e3c);">
+                      <i class="bi bi-cash-coin"></i>
+                      Cobrar Efectivo
+                    </button>
+                  </form>
+                </div>
               </td>
             </tr>
           </tbody>
