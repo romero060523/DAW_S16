@@ -413,6 +413,10 @@
   </head>
   <body>
     <div class="factura-wrapper">
+      <div th:if="${error}" style="background:#ffe6e6;border:1px solid #ffb3b3;padding:12px;border-radius:8px;margin-bottom:12px;color:#8b0000;">
+        <strong>Atención:</strong>
+        <span th:text="${error}">Mensaje de error</span>
+      </div>
       <!-- Action Bar (no imprimir) -->
       <div class="action-bar">
         <button class="btn-action-factura btn-print" onclick="window.print()">
@@ -464,7 +468,7 @@
               <strong>Fecha y Hora:</strong>
               <span
                 class="info-value"
-                th:text="${#temporals.format(pedido.fechaHora, 'dd/MM/yyyy HH:mm:ss')}"
+                th:text="${pedido.fechaHora != null ? #temporals.format(pedido.fechaHora, 'dd/MM/yyyy HH:mm:ss') : '---'}"
                 >01/01/2025 12:00:00</span
               >
             </div>

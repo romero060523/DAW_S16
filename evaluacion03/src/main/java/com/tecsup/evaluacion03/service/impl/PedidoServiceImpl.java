@@ -55,6 +55,11 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
+    public Pedido findByIdWithRelations(Long id) {
+        return pedidoRepository.findByIdWithRelations(id).orElse(null);
+    }
+
+    @Override
     public List<Pedido> findByEstado(EstadoPedido estado) {
         return pedidoRepository.findByEstado(estado);
     }

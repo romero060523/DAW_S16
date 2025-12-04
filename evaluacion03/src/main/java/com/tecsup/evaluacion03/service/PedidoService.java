@@ -10,6 +10,7 @@ public interface PedidoService {
     void delete(Long id);
     List<Pedido> findAll();
     Pedido findById(Long id);
+    Pedido findByIdWithRelations(Long id);
     List<Pedido> findByEstado(com.tecsup.evaluacion03.enums.EstadoPedido estado);
     List<Pedido> findByClienteId(Long clienteId);
     List<Pedido> findByMesaId(Long mesaId);

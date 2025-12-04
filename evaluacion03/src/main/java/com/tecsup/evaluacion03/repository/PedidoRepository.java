@@ -3,9 +3,12 @@ package com.tecsup.evaluacion03.repository;
 import com.tecsup.evaluacion03.model.Pedido;
 import com.tecsup.evaluacion03.enums.EstadoPedido;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
@@ -39,4 +42,16 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
      * Busca pedidos no cerrados (pendientes, en preparación, servidos)
      */
     List<Pedido> findByEstadoNot(EstadoPedido estado);
+
+    /**
+     * Busca un pedido por ID cargando eagerly sus relaciones (cliente, mesa, detalles con plato)
+     * Esto evita LazyInitializationException al renderizar la vista de factura
+     */
+    @Query("SELECT p FROM Pedido p " +
+           "LEFT JOIN FETCH p.cliente " +
+           "LEFT JOIN FETCH p.mesa " +
+           "LEFT JOIN FETCH p.detalles d " +
+           "LEFT JOIN FETCH d.plato " +
+           "WHERE p.id = :id")
+    Optional<Pedido> findByIdWithRelations(@Param("id") Long id);
 }

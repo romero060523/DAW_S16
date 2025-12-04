@@ -7,16 +7,23 @@ import com.tecsup.evaluacion03.model.Pedido;
 import com.tecsup.evaluacion03.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/pedido")
 public class PedidoController {
+
+    private static final Logger log = LoggerFactory.getLogger(PedidoController.class);
 
     private final PedidoService pedidoService;
     private final PlatoService platoService;
@@ -38,6 +45,31 @@ public class PedidoController {
         this.clienteService = clienteService;
         this.mesaService = mesaService;
         this.paymentService = paymentService;
+    }
+
+    /**
+        * Endpoint de diagnóstico que devuelve un resumen JSON del pedido (no serializa todo el grafo).
+    */
+    @GetMapping("/{id}/json")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getPedidoJson(@PathVariable Long id) {
+        Pedido pedido = pedidoService.findById(id);
+        if (pedido == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Map<String, Object> out = new HashMap<>();
+        out.put("id", pedido.getId());
+        out.put("estado", pedido.getEstado());
+        out.put("paymentStatus", pedido.getPaymentStatus());
+        out.put("stripePaymentIntentId", pedido.getStripePaymentIntentId());
+        out.put("fechaHora", pedido.getFechaHora());
+        out.put("paidAt", pedido.getPaidAt());
+        out.put("total", pedido.getTotal());
+        out.put("detallesCount", pedido.getDetalles() != null ? pedido.getDetalles().size() : 0);
+        out.put("cliente", pedido.getCliente() != null ? pedido.getCliente().getNombreCompleto() : null);
+
+        return ResponseEntity.ok(out);
     }
 
     @GetMapping
@@ -191,7 +223,7 @@ public class PedidoController {
             pedido.setEstado(EstadoPedido.CERRADO);
             pedidoService.save(pedido);
         }
-        return "redirect:/pedido/" + id + "/factura";
+        return "redirect:/pedido/servidos";
     }
 
     /**
@@ -210,13 +242,20 @@ public class PedidoController {
 
     // ========== FACTURA ==========
 
-    @GetMapping("/{id}/factura")
-    public String verFactura(@PathVariable Long id, Model model) {
-        Pedido pedido = pedidoService.findById(id);
-        if (pedido == null || pedido.getEstado() != EstadoPedido.CERRADO) {
-            return "redirect:/pedido";
-        }
-        model.addAttribute("pedido", pedido);
-        return "pedido/factura";
-    }
+    // @GetMapping("/{id}/factura")
+    // public String verFactura(@PathVariable Long id, Model model) {
+    //     try {
+    //         // Usar findByIdWithRelations para cargar eagerly cliente, mesa y detalles
+    //         Pedido pedido = pedidoService.findByIdWithRelations(id);
+    //         if (pedido == null || pedido.getEstado() != EstadoPedido.CERRADO) {
+    //             log.warn("Factura no disponible para pedido {}. Estado o inexistente.", id);
+    //             return "redirect:/pedido?error=factura_no_disponible";
+    //         }
+    //         model.addAttribute("pedido", pedido);
+    //         return "pedido/factura";
+    //     } catch (Exception e) {
+    //         log.error("Error al mostrar factura para pedido {}: {}", id, e.getMessage(), e);
+    //         return "redirect:/pedido?error=error_mostrar_factura";
+    //     }
+    // }
 }

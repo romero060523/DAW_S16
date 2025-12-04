@@ -646,14 +646,12 @@
                 </ul>
               </td>
               <td style="text-align: center">
-                <a
+                <span
                   th:if="${p.estado.name() == 'CERRADO'}"
-                  th:href="@{/pedido/{id}/factura(id=${p.id})}"
-                  class="btn-factura"
+                  style="color: #888; font-size: 0.85rem"
                 >
-                  <i class="bi bi-file-earmark-pdf"></i>
-                  Ver Factura
-                </a>
+                  Próximamente
+                </span>
                 <span
                   th:unless="${p.estado.name() == 'CERRADO'}"
                   style="color: #ccc; font-size: 0.85rem"
