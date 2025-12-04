@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <title>Clientes - Restaurante TECSUP</title>
+    <style>
+        /* Navbar Premium */
+        .navbar-premium {
+            background: linear-gradient(135deg, #2c2416 0%, #3d2d1f 50%, #4a3828 100%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 1.25rem 0;
+        }
+
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .navbar-brand i {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+            padding: 2.5rem 0;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid var(--primary-color);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            color: var(--secondary-color);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-header h1 i {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-light);
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 0.5rem 1rem;
+        }
+
+        .stat-item i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid;
+        }
+
+        .btn-secondary-custom {
+            background: white;
+            color: var(--secondary-color);
+            border-color: #ddd;
+        }
+
+        .btn-secondary-custom:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Table Container */
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .table-premium {
+            width: 100%;
+            margin: 0;
+        }
+
+        .table-premium thead {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #3d2d1f 100%);
+        }
+
+        .table-premium thead th {
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 1.25rem 1rem;
+            border: none;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        .table-premium thead th i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .table-premium tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .table-premium tbody tr:hover {
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.05) 0%, transparent 100%);
+            transform: scale(1.005);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-premium tbody td {
+            padding: 1.25rem 1rem;
+            color: var(--text-dark);
+            vertical-align: middle;
+            border: none;
+        }
+
+        /* DNI Badge */
+        .dni-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(212, 175, 55, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-family: 'Courier New', monospace;
+        }
+
+        .dni-badge i {
+            color: var(--primary-color);
+        }
+
+        /* Nombre destacado */
+        .nombre-cliente {
+            font-weight: 600;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nombre-cliente i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        /* Contacto */
+        .contacto-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .contacto-info i {
+            color: var(--primary-color);
+        }
+
+        /* Estado Activo/Inactivo */
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-activo {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-activo i {
+            color: #28a745;
+        }
+
+        .status-inactivo {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-inactivo i {
+            color: #dc3545;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-dark navbar-premium">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">
+            <i class="bi bi-shop-window"></i>
+            <span>Restaurante TECSUP</span>
+        </a>
+    </div>
+</nav>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <h1>
+            <i class="bi bi-people-fill"></i>
+            Gestión de Clientes
+        </h1>
+        <p class="page-subtitle">Directorio completo de clientes del restaurante</p>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="container mb-5">
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <i class="bi bi-person-lines-fill"></i>
+            <span class="stat-value" th:text="${#lists.size(clientes)}">0</span>
+            <span class="stat-label">Total Clientes</span>
+        </div>
+        <div class="stat-item">
+            <i class="bi bi-check-circle-fill text-success"></i>
+            <span class="stat-value" th:text="${#lists.size(clientes.?[activo == true])}">0</span>
+            <span class="stat-label">Activos</span>
+        </div>
+        <div class="stat-item">
+            <i class="bi bi-x-circle-fill text-danger"></i>
+            <span class="stat-value" th:text="${#lists.size(clientes.?[activo == false])}">0</span>
+            <span class="stat-label">Inactivos</span>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a th:href="@{/}" class="btn-action btn-secondary-custom">
+            <i class="bi bi-house-door"></i>
+            Volver al Inicio
+        </a>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+        <table class="table table-premium">
+            <thead>
+            <tr>
+                <th><i class="bi bi-hash"></i>ID</th>
+                <th><i class="bi bi-credit-card"></i>DNI</th>
+                <th><i class="bi bi-person"></i>Nombre Completo</th>
+                <th><i class="bi bi-telephone"></i>Teléfono</th>
+                <th><i class="bi bi-envelope"></i>Correo</th>
+                <th><i class="bi bi-toggles"></i>Estado</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${clientes}">
+                <td><strong th:text="${c.id}">1</strong></td>
+                <td>
+                <span class="dni-badge">
+                  <i class="bi bi-card-heading"></i>
+                  <span th:text="${c.dni}">12345678</span>
+                </span>
+                </td>
+                <td>
+                    <div class="nombre-cliente">
+                        <i class="bi bi-person-circle"></i>
+                        <span th:text="${c.nombres + ' ' + c.apellidos}">Nombre Apellido</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="contacto-info">
+                        <i class="bi bi-phone"></i>
+                        <span th:text="${c.telefono}">999000000</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="contacto-info">
+                        <i class="bi bi-at"></i>
+                        <span th:text="${c.correo}">correo@example.com</span>
+                    </div>
+                </td>
+                <td>
+                <span
+                        class="status-badge"
+                        th:classappend="${c.activo ? 'status-activo' : 'status-inactivo'}">
+                  <i th:class="${c.activo ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'}"></i>
+                  <span th:text="${c.activo ? 'Activo' : 'Inactivo'}">Activo</span>
+                </span>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(clientes)}">
+                <td colspan="6">
+                    <div class="empty-state">
+                        <i class="bi bi-person-x"></i>
+                        <p>No hay clientes registrados</p>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+  <head>
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <title>Gestión de Usuarios</title>
+    <style>
+      /* Navbar Premium */
+      .navbar-premium {
+        background: linear-gradient(
+          135deg,
+          #2c2416 0%,
+          #3d2d1f 50%,
+          #4a3828 100%
+        );
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 1.25rem 0;
+      }
+
+      .navbar-brand {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white !important;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .navbar-brand i {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+      }
+
+      /* Page Header */
+      .page-header {
+        background: linear-gradient(
+          135deg,
+          rgba(63, 81, 181, 0.1) 0%,
+          rgba(63, 81, 181, 0.05) 100%
+        );
+        padding: 2.5rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 3px solid #3f51b5;
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        color: var(--secondary-color);
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .page-header h1 i {
+        color: #3f51b5;
+        font-size: 2.5rem;
+      }
+
+      .page-subtitle {
+        color: var(--text-light);
+        margin-top: 0.5rem;
+        font-size: 1.1rem;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Stats Bar */
+      .stats-bar {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      .stat-item {
+        flex: 1;
+        min-width: 150px;
+        text-align: center;
+        padding: 1rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+      }
+
+      .stat-item:hover {
+        transform: translateY(-5px);
+      }
+
+      .stat-item.total {
+        background: linear-gradient(
+          135deg,
+          rgba(63, 81, 181, 0.1),
+          rgba(63, 81, 181, 0.05)
+        );
+        border: 2px solid #3f51b5;
+      }
+
+      .stat-item.activos {
+        background: linear-gradient(
+          135deg,
+          rgba(76, 175, 80, 0.1),
+          rgba(76, 175, 80, 0.05)
+        );
+        border: 2px solid #4caf50;
+      }
+
+      .stat-item.inactivos {
+        background: linear-gradient(
+          135deg,
+          rgba(244, 67, 54, 0.1),
+          rgba(244, 67, 54, 0.05)
+        );
+        border: 2px solid #f44336;
+      }
+
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-item.total .stat-value {
+        color: #3f51b5;
+      }
+      .stat-item.activos .stat-value {
+        color: #4caf50;
+      }
+      .stat-item.inactivos .stat-value {
+        color: #f44336;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+      }
+
+      /* Action Buttons */
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .btn-action {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid;
+      }
+
+      .btn-primary-custom {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--primary-dark)
+        );
+        color: white;
+        border-color: var(--primary-color);
+      }
+
+      .btn-primary-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        color: white;
+      }
+
+      .btn-secondary-custom {
+        background: white;
+        color: var(--secondary-color);
+        border-color: #ddd;
+      }
+
+      .btn-secondary-custom:hover {
+        background: var(--secondary-color);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Table Container */
+      .table-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      .table-premium {
+        width: 100%;
+        margin: 0;
+      }
+
+      .table-premium thead {
+        background: linear-gradient(135deg, #3f51b5 0%, #303f9f 100%);
+      }
+
+      .table-premium thead th {
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1.25rem 1rem;
+        border: none;
+        font-size: 0.875rem;
+        white-space: nowrap;
+      }
+
+      .table-premium thead th i {
+        margin-right: 0.5rem;
+      }
+
+      .table-premium tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .table-premium tbody tr:hover {
+        background: linear-gradient(
+          90deg,
+          rgba(63, 81, 181, 0.05) 0%,
+          transparent 100%
+        );
+        transform: scale(1.005);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .table-premium tbody td {
+        padding: 1.25rem 1rem;
+        color: var(--text-dark);
+        vertical-align: middle;
+        border: none;
+      }
+
+      /* Usuario Card */
+      .usuario-nombre {
+        font-weight: 600;
+        color: var(--secondary-color);
+        font-size: 1.1rem;
+      }
+
+      .usuario-username {
+        color: var(--text-light);
+        font-size: 0.9rem;
+        font-family: "Courier New", monospace;
+        background: #f5f5f5;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        display: inline-block;
+        margin-top: 0.25rem;
+      }
+
+      /* Estado Badge */
+      .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .status-activo {
+        background: linear-gradient(135deg, #4caf50, #388e3c);
+        color: white;
+      }
+
+      .status-inactivo {
+        background: linear-gradient(135deg, #f44336, #d32f2f);
+        color: white;
+      }
+
+      /* Roles Badges */
+      .roles-container {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .role-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .role-admin {
+        background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+        color: white;
+      }
+
+      .role-mozo {
+        background: linear-gradient(135deg, #4caf50, #388e3c);
+        color: white;
+      }
+
+      .role-cocinero {
+        background: linear-gradient(135deg, #ff5722, #f4511e);
+        color: white;
+      }
+
+      .role-cajero {
+        background: linear-gradient(135deg, #2196f3, #1976d2);
+        color: white;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-light);
+      }
+
+      .empty-state i {
+        font-size: 4rem;
+        color: #3f51b5;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      /* Responsive */
+      @media (max-width: 992px) {
+        .page-header h1 {
+          font-size: 2rem;
+        }
+
+        .stats-bar {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .table-container {
+          overflow-x: auto;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+
+        .btn-action {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .roles-container {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark navbar-premium">
+      <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">
+          <i class="bi bi-shop-window"></i>
+          <span>Restaurante TECSUP</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="container">
+        <h1>
+          <i class="bi bi-people-fill"></i>
+          Gestión de Usuarios
+        </h1>
+        <p class="page-subtitle">Administración de usuarios del sistema</p>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container mb-5">
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat-item total">
+          <div class="stat-value" th:text="${#lists.size(usuarios)}">0</div>
+          <div class="stat-label">Total Usuarios</div>
+        </div>
+        <div class="stat-item activos">
+          <div
+            class="stat-value"
+            th:text="${#lists.size(usuarios.?[activo == true])}"
+          >
+            0
+          </div>
+          <div class="stat-label">Activos</div>
+        </div>
+        <div class="stat-item inactivos">
+          <div
+            class="stat-value"
+            th:text="${#lists.size(usuarios.?[activo == false])}"
+          >
+            0
+          </div>
+          <div class="stat-label">Inactivos</div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <a th:href="@{/}" class="btn-action btn-secondary-custom">
+          <i class="bi bi-house-door"></i>
+          Inicio
+        </a>
+        <a href="#" class="btn-action btn-primary-custom">
+          <i class="bi bi-person-plus"></i>
+          Nuevo Usuario
+        </a>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+        <table class="table-premium" th:if="${not #lists.isEmpty(usuarios)}">
+          <thead>
+            <tr>
+              <th><i class="bi bi-hash"></i>ID</th>
+              <th><i class="bi bi-person"></i>Usuario</th>
+              <th><i class="bi bi-card-text"></i>Nombre Completo</th>
+              <th><i class="bi bi-toggle-on"></i>Estado</th>
+              <th><i class="bi bi-shield-check"></i>Roles</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="u : ${usuarios}">
+              <td
+                style="font-weight: bold; font-size: 1.2rem"
+                th:text="${u.id}"
+              >
+                1
+              </td>
+              <td>
+                <div class="usuario-username">
+                  <i class="bi bi-at"></i>
+                  <span th:text="${u.nombreUsuario}">usuario</span>
+                </div>
+              </td>
+              <td>
+                <div
+                  class="usuario-nombre"
+                  th:text="${u.nombre} + ' ' + ${u.apellido}"
+                >
+                  Juan Pérez
+                </div>
+              </td>
+              <td>
+                <span th:if="${u.activo}" class="status-badge status-activo">
+                  <i class="bi bi-check-circle-fill"></i>
+                  Activo
+                </span>
+                <span
+                  th:unless="${u.activo}"
+                  class="status-badge status-inactivo"
+                >
+                  <i class="bi bi-x-circle-fill"></i>
+                  Inactivo
+                </span>
+              </td>
+              <td>
+                <div class="roles-container">
+                  <span
+                    th:each="r : ${u.roles}"
+                    th:class="'role-badge role-' + ${#strings.toLowerCase(#strings.replace(r.nombre, 'ROLE_', ''))}"
+                  >
+                    <i
+                      th:class="${r.nombre == 'ROLE_ADMIN' ? 'bi bi-star-fill' : 
+                                  (r.nombre == 'ROLE_MOZO' ? 'bi bi-clipboard-check' : 
+                                  (r.nombre == 'ROLE_COCINERO' ? 'bi bi-fire' : 'bi bi-cash-coin'))}"
+                    ></i>
+                    <span th:text="${#strings.replace(r.nombre, 'ROLE_', '')}"
+                      >ADMIN</span
+                    >
+                  </span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div class="empty-state" th:if="${#lists.isEmpty(usuarios)}">
+          <i class="bi bi-people"></i>
+          <h3>No hay usuarios registrados</h3>
+          <p>Comienza agregando un nuevo usuario al sistema</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+  </body>
+</html>

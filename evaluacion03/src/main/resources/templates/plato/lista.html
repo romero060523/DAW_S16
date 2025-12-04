@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+  <head>
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <title>Platos - Restaurante TECSUP</title>
+    <style>
+      /* Navbar Premium */
+      .navbar-premium {
+        background: linear-gradient(
+          135deg,
+          #2c2416 0%,
+          #3d2d1f 50%,
+          #4a3828 100%
+        );
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 1.25rem 0;
+      }
+
+      .navbar-brand {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white !important;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .navbar-brand i {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+      }
+
+      /* Page Header */
+      .page-header {
+        background: linear-gradient(
+          135deg,
+          rgba(212, 175, 55, 0.1) 0%,
+          rgba(212, 175, 55, 0.05) 100%
+        );
+        padding: 2.5rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 3px solid var(--primary-color);
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        color: var(--secondary-color);
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .page-header h1 i {
+        color: var(--primary-color);
+        font-size: 2.5rem;
+      }
+
+      .page-subtitle {
+        color: var(--text-light);
+        margin-top: 0.5rem;
+        font-size: 1.1rem;
+      }
+
+      /* Stats Bar */
+      .stats-bar {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 1rem;
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 0.5rem 1rem;
+      }
+
+      .stat-item i {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--secondary-color);
+        display: block;
+      }
+
+      .stat-label {
+        color: var(--text-light);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Action Buttons */
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .btn-action {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid;
+      }
+
+      .btn-primary-custom {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--primary-dark)
+        );
+        color: white;
+        border-color: var(--primary-color);
+      }
+
+      .btn-primary-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        color: white;
+      }
+
+      .btn-secondary-custom {
+        background: white;
+        color: var(--secondary-color);
+        border-color: #ddd;
+      }
+
+      .btn-secondary-custom:hover {
+        background: var(--secondary-color);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Table Container */
+      .table-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .table-premium {
+        width: 100%;
+        margin: 0;
+      }
+
+      .table-premium thead {
+        background: linear-gradient(
+          135deg,
+          var(--secondary-color) 0%,
+          #3d2d1f 100%
+        );
+      }
+
+      .table-premium thead th {
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1.25rem 1rem;
+        border: none;
+        font-size: 0.875rem;
+        white-space: nowrap;
+      }
+
+      .table-premium thead th i {
+        margin-right: 0.5rem;
+        color: var(--primary-color);
+      }
+
+      .table-premium tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .table-premium tbody tr:hover {
+        background: linear-gradient(
+          90deg,
+          rgba(212, 175, 55, 0.05) 0%,
+          transparent 100%
+        );
+        transform: scale(1.005);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .table-premium tbody td {
+        padding: 1.25rem 1rem;
+        color: var(--text-dark);
+        vertical-align: middle;
+        border: none;
+      }
+
+      /* Badge para tipo de plato */
+      .badge-tipo {
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        display: inline-block;
+      }
+
+      .badge-entrada {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+        color: white;
+      }
+
+      .badge-fondo {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+      }
+
+      .badge-postre {
+        background: linear-gradient(135deg, #ffc107, #ff9800);
+        color: white;
+      }
+
+      .badge-bebida {
+        background: linear-gradient(135deg, #6f42c1, #563d7c);
+        color: white;
+      }
+
+      /* Estado Activo/Inactivo */
+      .status-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .status-activo {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .status-activo i {
+        color: #28a745;
+      }
+
+      .status-inactivo {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .status-inactivo i {
+        color: #dc3545;
+      }
+
+      /* Precio destacado */
+      .precio-destacado {
+        font-weight: 700;
+        color: var(--primary-color);
+        font-size: 1.1rem;
+      }
+
+      /* Tiempo de preparación */
+      .tiempo-prep {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(212, 175, 55, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        color: var(--accent-color);
+        font-weight: 600;
+      }
+
+      .tiempo-prep i {
+        color: var(--primary-color);
+      }
+
+      /* Descripción */
+      .descripcion-cell {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--text-light);
+        font-size: 0.9rem;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-light);
+      }
+
+      .empty-state i {
+        font-size: 4rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      /* Responsive */
+      @media (max-width: 992px) {
+        .page-header h1 {
+          font-size: 2rem;
+        }
+
+        .table-container {
+          overflow-x: auto;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+
+        .btn-action {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .stats-bar {
+          flex-direction: column;
+        }
+
+        .descripcion-cell {
+          max-width: 150px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark navbar-premium">
+      <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">
+          <i class="bi bi-shop-window"></i>
+          <span>Restaurante TECSUP</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="container">
+        <h1>
+          <i class="bi bi-egg-fried"></i>
+          Menú Completo
+        </h1>
+        <p class="page-subtitle">Gestión de todos los platos del restaurante</p>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container mb-5">
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat-item">
+          <i class="bi bi-list-ul"></i>
+          <span class="stat-value" th:text="${#lists.size(platos)}">0</span>
+          <span class="stat-label">Total Platos</span>
+        </div>
+        <div class="stat-item">
+          <i class="bi bi-check-circle-fill text-success"></i>
+          <span
+            class="stat-value"
+            th:text="${#lists.size(platos.?[activo == true])}"
+            >0</span
+          >
+          <span class="stat-label">Activos</span>
+        </div>
+        <div class="stat-item">
+          <i class="bi bi-x-circle-fill text-danger"></i>
+          <span
+            class="stat-value"
+            th:text="${#lists.size(platos.?[activo == false])}"
+            >0</span
+          >
+          <span class="stat-label">Inactivos</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <a th:href="@{/}" class="btn-action btn-secondary-custom">
+          <i class="bi bi-house-door"></i>
+          Volver al Inicio
+        </a>
+        <a th:href="@{/plato/activos}" class="btn-action btn-primary-custom">
+          <i class="bi bi-star-fill"></i>
+          Ver Solo Activos
+        </a>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+        <table class="table table-premium">
+          <thead>
+            <tr>
+              <th><i class="bi bi-hash"></i>ID</th>
+              <th><i class="bi bi-bookmark"></i>Nombre</th>
+              <th><i class="bi bi-tag"></i>Tipo</th>
+              <th><i class="bi bi-currency-dollar"></i>Precio</th>
+              <th><i class="bi bi-toggles"></i>Estado</th>
+              <th><i class="bi bi-clock"></i>Tiempo</th>
+              <th><i class="bi bi-file-text"></i>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="p : ${platos}">
+              <td><strong th:text="${p.id}">1</strong></td>
+              <td>
+                <strong th:text="${p.nombre}">Nombre del Plato</strong>
+              </td>
+              <td>
+                <span
+                  class="badge-tipo"
+                  th:classappend="${p.tipo == 'ENTRADA' ? 'badge-entrada' : 
+                                   p.tipo == 'FONDO' ? 'badge-fondo' : 
+                                   p.tipo == 'POSTRE' ? 'badge-postre' : 'badge-bebida'}"
+                  th:text="${p.tipo}"
+                >
+                  FONDO
+                </span>
+              </td>
+              <td>
+                <span class="precio-destacado">
+                  S/
+                  <span th:text="${#numbers.formatDecimal(p.precio, 1, 2)}"
+                    >0.00</span
+                  >
+                </span>
+              </td>
+              <td>
+                <span
+                  class="status-badge"
+                  th:classappend="${p.activo ? 'status-activo' : 'status-inactivo'}"
+                >
+                  <i
+                    th:class="${p.activo ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'}"
+                  ></i>
+                  <span th:text="${p.activo ? 'Activo' : 'Inactivo'}"
+                    >Activo</span
+                  >
+                </span>
+              </td>
+              <td>
+                <span class="tiempo-prep">
+                  <i class="bi bi-stopwatch"></i>
+                  <span th:text="${p.tiempoPreparacionMinutos}">15</span> min
+                </span>
+              </td>
+              <td>
+                <span
+                  class="descripcion-cell"
+                  th:text="${p.descripcion}"
+                  th:title="${p.descripcion}"
+                >
+                  Descripción del plato
+                </span>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(platos)}">
+              <td colspan="7">
+                <div class="empty-state">
+                  <i class="bi bi-inbox"></i>
+                  <p>No hay platos registrados en el sistema</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+  </body>
+</html>

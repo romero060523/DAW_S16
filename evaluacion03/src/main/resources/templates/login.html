@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+  <head>
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <title>Login - Restaurante TECSUP</title>
+    <style>
+      /* Patrón decorativo de fondo */
+      .background-pattern {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(
+            circle at 20% 50%,
+            rgba(212, 175, 55, 0.05) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 80%,
+            rgba(139, 69, 19, 0.05) 0%,
+            transparent 50%
+          );
+        z-index: -1;
+      }
+
+      .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 2rem 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      .login-card {
+        background: white;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1),
+          0 0 0 1px rgba(212, 175, 55, 0.1);
+        border-radius: 30px;
+        overflow: hidden;
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .login-header {
+        background: linear-gradient(
+          135deg,
+          #2c2416 0%,
+          #3d2d1f 50%,
+          #4a3828 100%
+        );
+        padding: 3.5rem 2rem 3rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .login-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+            circle at 30% 50%,
+            rgba(212, 175, 55, 0.15) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 70% 50%,
+            rgba(212, 175, 55, 0.1) 0%,
+            transparent 50%
+          );
+        animation: shimmer 8s ease-in-out infinite;
+      }
+
+      @keyframes shimmer {
+        0%,
+        100% {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        50% {
+          opacity: 0.8;
+          transform: translateX(20px);
+        }
+      }
+
+      .logo-circle {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--primary-dark)
+        );
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3),
+          0 0 0 10px rgba(212, 175, 55, 0.1);
+        animation: float 3s ease-in-out infinite,
+          glow 2s ease-in-out infinite alternate;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0) scale(1);
+        }
+        50% {
+          transform: translateY(-10px) scale(1.02);
+        }
+      }
+
+      @keyframes glow {
+        from {
+          box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3),
+            0 0 0 10px rgba(212, 175, 55, 0.1);
+        }
+        to {
+          box-shadow: 0 15px 40px rgba(212, 175, 55, 0.4),
+            0 0 0 15px rgba(212, 175, 55, 0.15);
+        }
+      }
+
+      .logo-circle i {
+        font-size: 3rem;
+        color: white;
+      }
+
+      .login-header h2 {
+        color: white;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .login-header p {
+        color: var(--primary-color);
+        font-size: 1.1rem;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      .login-body {
+        padding: 2.5rem 2rem;
+      }
+
+      .form-floating {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-floating > .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 1rem 1rem;
+        height: calc(3.5rem + 2px);
+        transition: all 0.3s ease;
+        background-color: #fafafa;
+      }
+
+      .form-floating > .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.15);
+        background-color: white;
+        transform: translateY(-2px);
+      }
+
+      .form-floating > .form-control:not(:placeholder-shown) {
+        background-color: white;
+      }
+
+      .form-floating > label {
+        padding: 1rem 1rem;
+        color: var(--text-light);
+      }
+
+      .btn-login {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--primary-dark)
+        );
+        border: none;
+        padding: 1rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        border-radius: 15px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-transform: uppercase;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+      }
+
+      .btn-login::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+
+      .btn-login:hover::before {
+        width: 300px;
+        height: 300px;
+      }
+
+      .btn-login:hover {
+        background: linear-gradient(
+          135deg,
+          var(--primary-dark),
+          var(--accent-color)
+        );
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+      }
+
+      .btn-login:active {
+        transform: translateY(-1px);
+      }
+
+      .alert {
+        border: none;
+        border-radius: 15px;
+        padding: 1.25rem 1.5rem;
+        animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-left: 5px solid;
+        font-weight: 500;
+      }
+
+      .alert-danger {
+        background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+        border-left-color: #dc3545;
+        color: #721c24;
+      }
+
+      .alert-success {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border-left-color: #28a745;
+        color: #155724;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .test-users-card {
+        background: linear-gradient(135deg, #fff9e6 0%, #fff5d6 100%);
+        border: 2px solid var(--primary-color);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .test-users-card h6 {
+        color: var(--secondary-color);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-family: "Poppins", sans-serif;
+      }
+
+      .test-users-card .user-credential {
+        background: white;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        border-left: 4px solid var(--primary-color);
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+      }
+
+      .test-users-card .user-credential:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .test-users-card .user-credential i {
+        color: var(--primary-color);
+        margin-right: 0.75rem;
+        font-size: 1.2rem;
+      }
+
+      .back-link {
+        color: var(--text-light);
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+      }
+
+      .back-link:hover {
+        color: var(--primary-color);
+        background: rgba(212, 175, 55, 0.1);
+        transform: translateX(-5px);
+      }
+
+      .back-link i {
+        transition: transform 0.3s ease;
+      }
+
+      .back-link:hover i {
+        transform: translateX(-3px);
+      }
+
+      .divider {
+        text-align: center;
+        margin: 1.5rem 0;
+        position: relative;
+      }
+
+      .divider::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          to right,
+          transparent,
+          #ddd 20%,
+          #ddd 80%,
+          transparent
+        );
+      }
+
+      .divider span {
+        background: white;
+        padding: 0 1rem;
+        position: relative;
+        color: var(--text-light);
+        font-size: 0.875rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Patrón decorativo de fondo -->
+    <div class="background-pattern"></div>
+
+    <div class="container login-container">
+      <div class="row justify-content-center w-100">
+        <div class="col-md-6 col-lg-5">
+          <div class="login-card">
+            <!-- Header -->
+            <div class="login-header">
+              <div class="logo-circle">
+                <i class="bi bi-shop-window"></i>
+              </div>
+              <h2>Restaurante TECSUP</h2>
+              <p>Bienvenido de vuelta</p>
+            </div>
+
+            <!-- Body -->
+            <div class="login-body">
+              <!-- Alertas -->
+              <div
+                th:if="${param.error}"
+                class="alert alert-danger alert-dismissible fade show"
+                role="alert"
+              >
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Error:</strong> Credenciales inválidas. Por favor,
+                intenta de nuevo.
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="alert"
+                ></button>
+              </div>
+
+              <div
+                th:if="${param.logout}"
+                class="alert alert-success alert-dismissible fade show"
+                role="alert"
+              >
+                <i class="bi bi-check-circle-fill me-2"></i>
+                Has cerrado sesión correctamente.
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="alert"
+                ></button>
+              </div>
+
+              <!-- Formulario -->
+              <form th:action="@{/login}" method="post">
+                <div class="form-floating">
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    class="form-control"
+                    placeholder="Usuario"
+                    required
+                    autofocus
+                  />
+                  <label for="username">
+                    <i class="bi bi-person me-2"></i>Usuario
+                  </label>
+                </div>
+
+                <div class="form-floating">
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    class="form-control"
+                    placeholder="Contraseña"
+                    required
+                  />
+                  <label for="password">
+                    <i class="bi bi-lock me-2"></i>Contraseña
+                  </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-login w-100">
+                  <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+                </button>
+              </form>
+
+              <div class="divider">
+                <span>o</span>
+              </div>
+
+              <div class="text-center">
+                <a th:href="@{/}" class="back-link">
+                  <i class="bi bi-arrow-left"></i>
+                  <span>Volver al inicio</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info de usuarios de prueba -->
+          <div class="test-users-card">
+            <h6><i class="bi bi-key-fill me-2"></i>Credenciales de Prueba</h6>
+            <div class="user-credential">
+              <i class="bi bi-shield-check"></i>
+              <div class="w-100">
+                <strong>Administrador</strong>
+                <div class="text-muted">admin / admin123</div>
+              </div>
+            </div>
+            <div class="user-credential">
+              <i class="bi bi-person-badge"></i>
+              <div class="w-100">
+                <strong>Mozo</strong>
+                <div class="text-muted">mozo1 / mozo123</div>
+              </div>
+            </div>
+            <div class="user-credential">
+              <i class="bi bi-egg-fried"></i>
+              <div class="w-100">
+                <strong>Cocinero</strong>
+                <div class="text-muted">coc1 / coco123</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+  </body>
+</html>

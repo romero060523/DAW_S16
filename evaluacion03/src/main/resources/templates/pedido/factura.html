@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+  <head>
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <title>Factura - Pedido #<span th:text="${pedido.id}">1</span></title>
+    <style>
+      body {
+        background: #f5f5f5;
+      }
+
+      .factura-wrapper {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+
+      /* Botones de Acción (no imprimir) */
+      .action-bar {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn-action-factura {
+        padding: 0.875rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        letter-spacing: 0.3px;
+      }
+
+      .btn-print {
+        background: linear-gradient(135deg, #2196f3, #1976d2);
+        color: white;
+      }
+
+      .btn-print:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);
+      }
+
+      .btn-back {
+        background: linear-gradient(135deg, #607d8b, #455a64);
+        color: white;
+      }
+
+      .btn-back:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(96, 125, 139, 0.4);
+        text-decoration: none;
+        color: white;
+      }
+
+      /* Factura Container */
+      .factura {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+      }
+
+      /* Header con degradado */
+      .factura-header {
+        background: linear-gradient(
+          135deg,
+          var(--secondary-color) 0%,
+          #3d2d1f 50%,
+          #4a3828 100%
+        );
+        color: white;
+        padding: 3rem 2.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .factura-header::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(212, 175, 55, 0.1) 0%,
+          transparent 70%
+        );
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(-20px, -20px);
+        }
+      }
+
+      .factura-header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 2.5rem;
+        margin: 0 0 1rem 0;
+        color: white;
+        position: relative;
+        z-index: 1;
+      }
+
+      .factura-header .logo-icon {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+      }
+
+      .factura-header p {
+        margin: 0.25rem 0;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+      }
+
+      .factura-number {
+        background: var(--primary-color);
+        color: var(--secondary-color);
+        padding: 0.75rem 2rem;
+        border-radius: 12px;
+        font-size: 1.3rem;
+        font-weight: 700;
+        display: inline-block;
+        margin-top: 1rem;
+        letter-spacing: 1px;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Contenido de la factura */
+      .factura-content {
+        padding: 2.5rem;
+      }
+
+      .info-section {
+        background: linear-gradient(135deg, #fafafa, #f5f5f5);
+        border-left: 5px solid var(--primary-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .info-section h3 {
+        font-family: "Playfair Display", serif;
+        color: var(--secondary-color);
+        margin: 0 0 1rem 0;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .info-section h3 i {
+        color: var(--primary-color);
+        font-size: 1.5rem;
+      }
+
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+      }
+
+      .info-row:last-child {
+        border-bottom: none;
+      }
+
+      .info-row strong {
+        color: var(--secondary-color);
+        font-weight: 600;
+      }
+
+      .info-row .info-value {
+        color: var(--text-dark);
+        font-weight: 500;
+      }
+
+      /* Estado Badge en factura */
+      .estado-badge-factura {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #4caf50, #388e3c);
+        color: white;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      /* Tabla de detalles */
+      .detalles-section {
+        margin: 2rem 0;
+      }
+
+      .detalles-section h3 {
+        font-family: "Playfair Display", serif;
+        color: var(--secondary-color);
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .detalles-section h3 i {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+      }
+
+      .table-factura {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .table-factura thead {
+        background: linear-gradient(135deg, var(--secondary-color), #3d2d1f);
+      }
+
+      .table-factura thead th {
+        color: white;
+        padding: 1.25rem 1rem;
+        text-align: left;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+      }
+
+      .table-factura tbody tr {
+        background: white;
+        transition: all 0.3s ease;
+      }
+
+      .table-factura tbody tr:nth-child(even) {
+        background: #fafafa;
+      }
+
+      .table-factura tbody tr:hover {
+        background: #f0f0f0;
+      }
+
+      .table-factura tbody td {
+        padding: 1.25rem 1rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        color: var(--text-dark);
+      }
+
+      .table-factura tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      /* Total Section */
+      .total-section {
+        margin-top: 2.5rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, #f5f0e8, #faf8f3);
+        border-radius: 15px;
+        border: 2px dashed var(--primary-color);
+      }
+
+      .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.875rem 0;
+        font-size: 1.1rem;
+        color: var(--text-dark);
+      }
+
+      .total-row strong {
+        font-weight: 600;
+      }
+
+      .total-row.grand-total {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #4caf50;
+        margin-top: 1rem;
+        padding-top: 1.5rem;
+        border-top: 3px solid var(--primary-color);
+      }
+
+      /* Observaciones */
+      .observaciones-section {
+        background: linear-gradient(135deg, #fff3cd, #ffe5a0);
+        border-left: 5px solid #ffc107;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .observaciones-section h3 {
+        font-family: "Playfair Display", serif;
+        color: var(--secondary-color);
+        margin: 0 0 1rem 0;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .observaciones-section h3 i {
+        color: #ffc107;
+      }
+
+      .observaciones-section p {
+        margin: 0;
+        font-style: italic;
+        color: #555;
+      }
+
+      /* Footer */
+      .factura-footer {
+        text-align: center;
+        padding: 2rem 2.5rem;
+        background: #fafafa;
+        border-top: 2px dashed #ddd;
+        color: var(--text-light);
+      }
+
+      .factura-footer strong {
+        color: var(--secondary-color);
+        font-size: 1.2rem;
+        display: block;
+        margin-bottom: 1rem;
+      }
+
+      .factura-footer p {
+        margin: 0.5rem 0;
+        font-size: 0.95rem;
+      }
+
+      /* Print Styles */
+      @media print {
+        body {
+          background: white;
+        }
+
+        .action-bar {
+          display: none !important;
+        }
+
+        .factura {
+          box-shadow: none;
+          border-radius: 0;
+        }
+
+        .factura-wrapper {
+          margin: 0;
+          padding: 0;
+        }
+
+        .page-break {
+          page-break-after: always;
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .factura-header h1 {
+          font-size: 2rem;
+        }
+
+        .factura-number {
+          font-size: 1.1rem;
+          padding: 0.5rem 1.5rem;
+        }
+
+        .factura-content {
+          padding: 1.5rem;
+        }
+
+        .info-row {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .table-factura {
+          font-size: 0.85rem;
+        }
+
+        .total-row.grand-total {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="factura-wrapper">
+      <!-- Action Bar (no imprimir) -->
+      <div class="action-bar">
+        <button class="btn-action-factura btn-print" onclick="window.print()">
+          <i class="bi bi-printer-fill"></i>
+          Imprimir Factura
+        </button>
+        <a th:href="@{/pedido}" class="btn-action-factura btn-back">
+          <i class="bi bi-arrow-left-circle"></i>
+          Volver a Pedidos
+        </a>
+      </div>
+
+      <!-- Factura -->
+      <div class="factura">
+        <!-- Header -->
+        <div class="factura-header">
+          <div class="logo-icon">
+            <i class="bi bi-shop-window"></i>
+          </div>
+          <h1>RESTAURANTE TECSUP</h1>
+          <p><strong>RUC:</strong> 20123456789</p>
+          <p>Av. Cascanueces 2221, Lima - Perú</p>
+          <p>
+            <strong>Tel:</strong> (01) 555-1234 |
+            <strong>Email:</strong> contacto@tecsup.edu.pe
+          </p>
+          <div class="factura-number">
+            <i class="bi bi-file-earmark-text"></i>
+            <span
+              th:text="'FACTURA Nº F001-' + ${#strings.toString(pedido.id).padStart(8, '0')}"
+              >FACTURA Nº F001-00000001</span
+            >
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="factura-content">
+          <!-- Información del Pedido -->
+          <div class="info-section">
+            <h3>
+              <i class="bi bi-clipboard-check"></i>
+              Información del Pedido
+            </h3>
+            <div class="info-row">
+              <strong>Pedido ID:</strong>
+              <span class="info-value" th:text="${pedido.id}">1</span>
+            </div>
+            <div class="info-row">
+              <strong>Fecha y Hora:</strong>
+              <span
+                class="info-value"
+                th:text="${#temporals.format(pedido.fechaHora, 'dd/MM/yyyy HH:mm:ss')}"
+                >01/01/2025 12:00:00</span
+              >
+            </div>
+            <div class="info-row">
+              <strong>Estado:</strong>
+              <span class="estado-badge-factura">
+                <i class="bi bi-lock-fill"></i>
+                <span th:text="${pedido.estado}">CERRADO</span>
+              </span>
+            </div>
+            <div class="info-row">
+              <strong>Tipo de Servicio:</strong>
+              <span class="info-value" th:text="${pedido.tipoServicio}"
+                >MESA</span
+              >
+            </div>
+          </div>
+
+          <!-- Cliente -->
+          <div class="info-section">
+            <h3>
+              <i class="bi bi-person-circle"></i>
+              Datos del Cliente
+            </h3>
+            <div class="info-row">
+              <strong>Nombre Completo:</strong>
+              <span
+                class="info-value"
+                th:text="${pedido.cliente != null ? pedido.cliente.getNombreCompleto() : 'Cliente General'}"
+                >Juan Pérez</span
+              >
+            </div>
+            <div
+              class="info-row"
+              th:if="${pedido.cliente != null && pedido.cliente.dni != null}"
+            >
+              <strong>DNI:</strong>
+              <span class="info-value" th:text="${pedido.cliente.dni}"
+                >12345678</span
+              >
+            </div>
+            <div
+              class="info-row"
+              th:if="${pedido.cliente != null && pedido.cliente.telefono != null}"
+            >
+              <strong>Teléfono:</strong>
+              <span class="info-value" th:text="${pedido.cliente.telefono}"
+                >987654321</span
+              >
+            </div>
+            <div class="info-row" th:if="${pedido.mesa != null}">
+              <strong>Mesa Asignada:</strong>
+              <span class="info-value" th:text="'Mesa ' + ${pedido.mesa.numero}"
+                >Mesa 5</span
+              >
+            </div>
+          </div>
+
+          <!-- Detalles de Consumo -->
+          <div class="detalles-section">
+            <h3>
+              <i class="bi bi-cart-check-fill"></i>
+              Detalle de Consumo
+            </h3>
+            <table class="table-factura">
+              <thead>
+                <tr>
+                  <th>Cant.</th>
+                  <th>Descripción</th>
+                  <th>P. Unitario</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="d : ${pedido.detalles}">
+                  <td th:text="${d.cantidad}">1</td>
+                  <td>
+                    <strong th:text="${d.plato.nombre}">Lomo Saltado</strong>
+                  </td>
+                  <td
+                    th:text="'S/ ' + ${#numbers.formatDecimal(d.precioUnitario, 1, 2)}"
+                  >
+                    S/ 10.00
+                  </td>
+                  <td
+                    th:text="'S/ ' + ${#numbers.formatDecimal(d.subtotal, 1, 2)}"
+                  >
+                    S/ 10.00
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Totales -->
+          <div class="total-section">
+            <div class="total-row">
+              <strong>Subtotal (Base Imponible):</strong>
+              <span
+                th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total, 1, 2)}"
+                >S/ 101.69</span
+              >
+            </div>
+            <div class="total-row">
+              <strong>IGV (18%):</strong>
+              <span
+                th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total * 0.18, 1, 2)}"
+                >S/ 18.31</span
+              >
+            </div>
+            <div class="total-row grand-total">
+              <strong>TOTAL A PAGAR:</strong>
+              <span
+                th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total * 1.18, 1, 2)}"
+                >S/ 120.00</span
+              >
+            </div>
+          </div>
+
+          <!-- Observaciones -->
+          <div
+            class="observaciones-section"
+            th:if="${pedido.observaciones != null and !#strings.isEmpty(pedido.observaciones)}"
+          >
+            <h3>
+              <i class="bi bi-chat-left-text-fill"></i>
+              Observaciones
+            </h3>
+            <p th:text="${pedido.observaciones}">Observaciones del pedido</p>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="factura-footer">
+          <strong>¡Gracias por su preferencia!</strong>
+          <p>Esta es una representación impresa de la Factura Electrónica</p>
+          <p>Visite nuestro sitio web: www.restaurantetecsup.pe</p>
+          <p>
+            <i class="bi bi-calendar3"></i>
+            Generado el
+            <span
+              th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm')}"
+              >09/11/2025 18:30</span
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+  </body>
+</html>

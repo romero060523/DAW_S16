@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+  <head>
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <title>Pedidos en Cocina</title>
+    <style>
+      /* Navbar Premium */
+      .navbar-premium {
+        background: linear-gradient(
+          135deg,
+          #2c2416 0%,
+          #3d2d1f 50%,
+          #4a3828 100%
+        );
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 1.25rem 0;
+      }
+
+      .navbar-brand {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white !important;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .navbar-brand i {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+      }
+
+      /* Page Header */
+      .page-header {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 87, 34, 0.1) 0%,
+          rgba(255, 87, 34, 0.05) 100%
+        );
+        padding: 2.5rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 3px solid #ff5722;
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        color: var(--secondary-color);
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .page-header h1 i {
+        color: #ff5722;
+        font-size: 2.5rem;
+        animation: fire 2s ease-in-out infinite;
+      }
+
+      @keyframes fire {
+        0%,
+        100% {
+          transform: scale(1) rotate(0deg);
+        }
+        25% {
+          transform: scale(1.1) rotate(-5deg);
+        }
+        75% {
+          transform: scale(1.1) rotate(5deg);
+        }
+      }
+
+      .page-subtitle {
+        color: var(--text-light);
+        margin-top: 0.5rem;
+        font-size: 1.1rem;
+      }
+
+      /* Action Buttons */
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .btn-action {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid;
+      }
+
+      .btn-secondary-custom {
+        background: white;
+        color: var(--secondary-color);
+        border-color: #ddd;
+      }
+
+      .btn-secondary-custom:hover {
+        background: var(--secondary-color);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Table Container */
+      .table-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .table-premium {
+        width: 100%;
+        margin: 0;
+      }
+
+      .table-premium thead {
+        background: linear-gradient(135deg, #ff5722 0%, #f4511e 100%);
+      }
+
+      .table-premium thead th {
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1.25rem 1rem;
+        border: none;
+        font-size: 0.875rem;
+        white-space: nowrap;
+      }
+
+      .table-premium thead th i {
+        margin-right: 0.5rem;
+        color: white;
+      }
+
+      .table-premium tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .table-premium tbody tr:hover {
+        background: linear-gradient(
+          90deg,
+          rgba(255, 87, 34, 0.05) 0%,
+          transparent 100%
+        );
+        transform: scale(1.005);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .table-premium tbody td {
+        padding: 1.25rem 1rem;
+        color: var(--text-dark);
+        vertical-align: middle;
+        border: none;
+      }
+
+      /* Badge de estado */
+      .badge-estado {
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, #ff9800, #f57c00);
+        color: white;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      /* Tiempo de pedido */
+      .tiempo-badge {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        background: linear-gradient(135deg, #ffe5e5, #ffcccc);
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        border-left: 4px solid #d32f2f;
+      }
+
+      .tiempo-badge .hora {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #d32f2f;
+        font-family: "Courier New", monospace;
+      }
+
+      .tiempo-badge .fecha {
+        font-size: 0.75rem;
+        color: var(--text-light);
+      }
+
+      /* Platos container */
+      .platos-container {
+        background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+        padding: 1rem;
+        border-radius: 10px;
+        border-left: 4px solid #ff9800;
+      }
+
+      .platos-list {
+        margin: 0;
+        padding-left: 20px;
+        list-style: none;
+      }
+
+      .platos-list li {
+        padding: 0.5rem 0;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--secondary-color);
+      }
+
+      .platos-list li::before {
+        content: "🍳";
+        font-size: 1.2rem;
+      }
+
+      .tiempo-prep {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        background: rgba(255, 152, 0, 0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        color: #e65100;
+      }
+
+      /* Botón listo */
+      .btn-listo {
+        background: linear-gradient(135deg, #4caf50, #388e3c);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      .btn-listo:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+        background: linear-gradient(135deg, #388e3c, #2e7d32);
+      }
+
+      .btn-listo i {
+        font-size: 1.2rem;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-light);
+      }
+
+      .empty-state i {
+        font-size: 4rem;
+        color: #4caf50;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      /* ID y Mesa destacados */
+      .id-destacado {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+
+      .mesa-destacada {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ff5722;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 87, 34, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+      }
+
+      /* Responsive */
+      @media (max-width: 992px) {
+        .page-header h1 {
+          font-size: 2rem;
+        }
+
+        .table-container {
+          overflow-x: auto;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+
+        .btn-action {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark navbar-premium">
+      <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">
+          <i class="bi bi-shop-window"></i>
+          <span>Restaurante TECSUP</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="container">
+        <h1>
+          <i class="bi bi-fire"></i>
+          Pedidos en Preparación (Cocina)
+        </h1>
+        <p class="page-subtitle">
+          Estos pedidos están siendo preparados. Marca como listo cuando
+          termines
+        </p>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container mb-5">
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <a th:href="@{/}" class="btn-action btn-secondary-custom">
+          <i class="bi bi-house-door"></i>
+          Inicio
+        </a>
+        <a th:href="@{/plato}" class="btn-action btn-secondary-custom">
+          <i class="bi bi-list"></i>
+          Ver Platos
+        </a>
+        <a th:href="@{/pedido}" class="btn-action btn-secondary-custom">
+          <i class="bi bi-clipboard-data"></i>
+          Todos los Pedidos
+        </a>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+        <table class="table table-premium">
+          <thead>
+            <tr>
+              <th><i class="bi bi-hash"></i>ID</th>
+              <th><i class="bi bi-table"></i>Mesa</th>
+              <th><i class="bi bi-clock-history"></i>Hora Pedido</th>
+              <th><i class="bi bi-toggle-on"></i>Estado</th>
+              <th><i class="bi bi-egg-fried"></i>Platos a Preparar</th>
+              <th><i class="bi bi-chat-text"></i>Observaciones</th>
+              <th><i class="bi bi-check-circle"></i>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="p : ${pedidos}">
+              <td>
+                <span class="id-destacado" th:text="${p.id}">1</span>
+              </td>
+              <td>
+                <span class="mesa-destacada">
+                  <i class="bi bi-table"></i>
+                  <span th:text="${p.mesa != null ? p.mesa.numero : 'Sin mesa'}"
+                    >M1</span
+                  >
+                </span>
+              </td>
+              <td>
+                <div class="tiempo-badge">
+                  <span
+                    class="hora"
+                    th:text="${#temporals.format(p.fechaHora, 'HH:mm')}"
+                    >12:00</span
+                  >
+                  <span
+                    class="fecha"
+                    th:text="${#temporals.format(p.fechaHora, 'dd/MM')}"
+                    >01/01</span
+                  >
+                </div>
+              </td>
+              <td>
+                <span class="badge-estado">
+                  <i class="bi bi-hourglass-split"></i>
+                  <span th:text="${p.estado}">EN_PREPARACION</span>
+                </span>
+              </td>
+              <td>
+                <div class="platos-container">
+                  <ul class="platos-list">
+                    <li th:each="d : ${p.detalles}">
+                      <span th:text="${d.cantidad} + 'x ' + ${d.plato.nombre}"
+                        >1x Plato</span
+                      >
+                      <span class="tiempo-prep">
+                        <i class="bi bi-stopwatch"></i>
+                        <span th:text="${d.plato.tiempoPreparacionMinutos}"
+                          >15</span
+                        >min
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+              <td>
+                <span
+                  th:text="${p.observaciones ?: '---'}"
+                  style="color: var(--text-light); font-style: italic"
+                  >Observaciones</span
+                >
+              </td>
+              <td>
+                <form
+                  th:action="@{/pedido/{id}/marcar-servido(id=${p.id})}"
+                  method="post"
+                  style="display: inline"
+                >
+                  <button type="submit" class="btn-listo">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Marcar Listo
+                  </button>
+                </form>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(pedidos)}">
+              <td colspan="7">
+                <div class="empty-state">
+                  <i class="bi bi-emoji-smile"></i>
+                  <p><strong>¡Todo al día!</strong></p>
+                  <p>No hay pedidos en preparación. ¡Excelente trabajo!</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+  </body>
+</html>

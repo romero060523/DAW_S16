@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+  lang="es"
+>
+  <head>
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <title>Home - Restaurante TECSUP</title>
+    <style>
+      /* Variables y estilos globales ya definidos en head.html */
+
+      /* Navbar Premium */
+      .navbar-premium {
+        background: linear-gradient(
+          135deg,
+          #2c2416 0%,
+          #3d2d1f 50%,
+          #4a3828 100%
+        );
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 1rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 1030;
+        backdrop-filter: blur(10px);
+      }
+
+      .navbar-brand {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white !important;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.3s ease;
+      }
+
+      .navbar-brand i {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      .navbar-brand:hover {
+        transform: translateY(-2px);
+      }
+
+      .navbar-text {
+        background: rgba(212, 175, 55, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+      }
+
+      .btn-outline-light {
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        font-weight: 600;
+        padding: 0.5rem 1.5rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .btn-outline-light:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+      }
+
+      /* Hero Section */
+      .hero-section {
+        background: linear-gradient(
+            135deg,
+            rgba(44, 36, 22, 0.95) 0%,
+            rgba(74, 56, 40, 0.95) 100%
+          ),
+          url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23d4af37" fill-opacity="0.1" width="1200" height="600"/><path d="M0 300 Q300 200 600 300 T1200 300" stroke="%23d4af37" stroke-opacity="0.2" fill="none" stroke-width="2"/></svg>');
+        background-size: cover;
+        background-position: center;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+        border-radius: 0 0 50px 50px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        animation: fadeIn 0.8s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .hero-section h1 {
+        font-family: "Playfair Display", serif;
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        animation: slideInDown 0.8s ease-out;
+      }
+
+      @keyframes slideInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .hero-section .lead {
+        color: var(--primary-color);
+        font-size: 1.5rem;
+        font-weight: 300;
+        margin-bottom: 1.5rem;
+        animation: slideInUp 0.8s ease-out 0.2s both;
+      }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .hero-section p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1rem;
+        animation: slideInUp 0.8s ease-out 0.4s both;
+      }
+
+      .hero-icon {
+        font-size: 5rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        display: inline-block;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      /* Cards Premium */
+      .card-premium {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        height: 100%;
+        animation: fadeInUp 0.6s ease-out both;
+      }
+
+      .card-premium:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .card-premium:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .card-premium:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .card-premium:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .card-header-mozo {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 1.5rem;
+        border: none;
+      }
+
+      .card-header-cocina {
+        background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+        color: white;
+        padding: 1.5rem;
+        border: none;
+      }
+
+      .card-header-admin {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color) 0%,
+          var(--primary-dark) 100%
+        );
+        color: white;
+        padding: 1.5rem;
+        border: none;
+      }
+
+      .card-header h5 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.3rem;
+        margin: 0;
+        font-weight: 600;
+      }
+
+      .card-header i {
+        font-size: 1.5rem;
+        margin-right: 0.5rem;
+      }
+
+      .card-body {
+        padding: 0;
+      }
+
+      .list-group-item {
+        border: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1rem 1.5rem;
+        transition: all 0.3s ease;
+        background: transparent;
+      }
+
+      .list-group-item:last-child {
+        border-bottom: none;
+      }
+
+      .list-group-item:hover {
+        background: linear-gradient(
+          90deg,
+          rgba(212, 175, 55, 0.1) 0%,
+          transparent 100%
+        );
+        padding-left: 2rem;
+        border-left: 4px solid var(--primary-color);
+      }
+
+      .list-group-item a {
+        color: var(--text-dark);
+        text-decoration: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: color 0.3s ease;
+      }
+
+      .list-group-item:hover a {
+        color: var(--primary-color);
+      }
+
+      .list-group-item a i {
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
+      }
+
+      .list-group-item:hover a i {
+        transform: scale(1.2) rotate(5deg);
+      }
+
+      /* Enlaces deshabilitados */
+      .list-group-item.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: rgba(0, 0, 0, 0.03);
+      }
+
+      .list-group-item.disabled:hover {
+        background: rgba(0, 0, 0, 0.03);
+        padding-left: 1.5rem;
+        border-left: none;
+      }
+
+      .list-group-item.disabled a {
+        color: #999;
+        pointer-events: none;
+        cursor: not-allowed;
+      }
+
+      .list-group-item.disabled:hover a {
+        color: #999;
+      }
+
+      .list-group-item.disabled a i {
+        opacity: 0.5;
+      }
+
+      .list-group-item.disabled:hover a i {
+        transform: none;
+      }
+
+      /* Badges mejorados */
+      .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        font-size: 0.75rem;
+      }
+
+      /* Footer Premium */
+      .footer-premium {
+        background: linear-gradient(135deg, #2c2416 0%, #3d2d1f 100%);
+        color: rgba(255, 255, 255, 0.7);
+        padding: 2rem 0;
+        margin-top: 4rem;
+        border-top: 3px solid var(--primary-color);
+      }
+
+      .footer-premium small {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .footer-premium i {
+        color: var(--primary-color);
+      }
+
+      /* Separador decorativo */
+      .section-divider {
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--primary-color),
+          transparent
+        );
+        margin: 2rem 0;
+        border-radius: 2px;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .hero-section h1 {
+          font-size: 2.5rem;
+        }
+
+        .hero-section .lead {
+          font-size: 1.2rem;
+        }
+
+        .card-premium {
+          margin-bottom: 1.5rem;
+        }
+      }
+
+      /* Animación de carga de página */
+      body {
+        animation: pageLoad 0.5s ease-out;
+      }
+
+      @keyframes pageLoad {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar Premium -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-premium">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+          <i class="bi bi-shop-window"></i>
+          <span>Restaurante TECSUP</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto align-items-center">
+            <li class="nav-item me-3">
+              <span class="navbar-text text-white">
+                <i class="bi bi-person-circle"></i>
+                <strong sec:authentication="name">Usuario</strong>
+                <span
+                  class="badge bg-warning text-dark ms-2"
+                  sec:authorize="hasRole('ADMIN')"
+                  >ADMIN</span
+                >
+                <span
+                  class="badge bg-success ms-2"
+                  sec:authorize="hasRole('MOZO')"
+                  >MOZO</span
+                >
+                <span
+                  class="badge bg-danger ms-2"
+                  sec:authorize="hasRole('COCINERO')"
+                  >COCINERO</span
+                >
+              </span>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-outline-light btn-sm" th:href="@{/logout}">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <div class="container text-center">
+        <i class="bi bi-house-heart hero-icon"></i>
+        <h1>Bienvenido al Sistema</h1>
+        <p class="lead">Sistema de Gestión de Restaurante</p>
+        <div class="section-divider"></div>
+        <p>
+          Selecciona una opción según tu rol para comenzar a gestionar el
+          restaurante.
+        </p>
+      </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="container">
+      <div class="row">
+        <!-- SECCIÓN MOZO -->
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card card-premium">
+            <div class="card-header card-header-mozo">
+              <h5>
+                <i class="bi bi-clipboard-check"></i>
+                Gestión de Pedidos (Mozo)
+              </h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush">
+                <li
+                  class="list-group-item"
+                  sec:authorize="hasAnyRole('MOZO', 'ADMIN')"
+                >
+                  <a th:href="@{/pedido/mozo}">
+                    <i class="bi bi-circle-fill text-warning"></i>
+                    <span>Ver Pedidos Pendientes</span>
+                  </a>
+                </li>
+                <li
+                  class="list-group-item disabled"
+                  sec:authorize="!hasAnyRole('MOZO', 'ADMIN')"
+                >
+                  <a href="#">
+                    <i class="bi bi-lock-fill text-danger"></i>
+                    <span>Ver Pedidos Pendientes (Sin acceso)</span>
+                  </a>
+                </li>
+
+                <li
+                  class="list-group-item"
+                  sec:authorize="hasAnyRole('MOZO', 'ADMIN')"
+                >
+                  <a th:href="@{/pedido/servidos}">
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                    <span>Ver Pedidos Servidos</span>
+                  </a>
+                </li>
+                <li
+                  class="list-group-item disabled"
+                  sec:authorize="!hasAnyRole('MOZO', 'ADMIN')"
+                >
+                  <a href="#">
+                    <i class="bi bi-lock-fill text-danger"></i>
+                    <span>Ver Pedidos Servidos (Sin acceso)</span>
+                  </a>
+                </li>
+
+                <li
+                  class="list-group-item"
+                  sec:authorize="hasAnyRole('MOZO', 'ADMIN')"
+                >
+                  <a th:href="@{/pedido/nuevo}">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Crear Nuevo Pedido</span>
+                  </a>
+                </li>
+                <li
+                  class="list-group-item disabled"
+                  sec:authorize="!hasAnyRole('MOZO', 'ADMIN')"
+                >
+                  <a href="#">
+                    <i class="bi bi-lock-fill text-danger"></i>
+                    <span>Crear Nuevo Pedido (Sin acceso)</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN COCINA -->
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card card-premium">
+            <div class="card-header card-header-cocina">
+              <h5>
+                <i class="bi bi-fire"></i>
+                Gestión de Cocina
+              </h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush">
+                <li
+                  class="list-group-item"
+                  sec:authorize="hasAnyRole('COCINERO', 'ADMIN')"
+                >
+                  <a th:href="@{/pedido/cocina}">
+                    <i class="bi bi-hourglass-split text-warning"></i>
+                    <span>Pedidos en Preparación</span>
+                  </a>
+                </li>
+                <li
+                  class="list-group-item disabled"
+                  sec:authorize="!hasAnyRole('COCINERO', 'ADMIN')"
+                >
+                  <a href="#">
+                    <i class="bi bi-lock-fill text-danger"></i>
+                    <span>Pedidos en Preparación (Sin acceso)</span>
+                  </a>
+                </li>
+
+                <li class="list-group-item">
+                  <a th:href="@{/plato}">
+                    <i class="bi bi-egg-fried"></i>
+                    <span>Ver Menú (Platos)</span>
+                  </a>
+                </li>
+                <li class="list-group-item">
+                  <a th:href="@{/plato/activos}">
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <span>Ver Platos Activos</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN ADMIN -->
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card card-premium">
+            <div class="card-header card-header-admin">
+              <h5>
+                <i class="bi bi-gear-fill"></i>
+                Administración
+              </h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item" sec:authorize="hasRole('ADMIN')">
+                  <a th:href="@{/pedido}">
+                    <i class="bi bi-list-check"></i>
+                    <span>Todos los Pedidos</span>
+                  </a>
+                </li>
+                <li
+                  class="list-group-item disabled"
+                  sec:authorize="!hasRole('ADMIN')"
+                >
+                  <a href="#">
+                    <i class="bi bi-lock-fill text-danger"></i>
+                    <span>Todos los Pedidos (Solo ADMIN)</span>
+                  </a>
+                </li>
+
+                <li class="list-group-item" sec:authorize="hasRole('ADMIN')">
+                  <a th:href="@{/usuario}">
+                    <i class="bi bi-person-badge"></i>
+                    <span>Gestión de Usuarios</span>
+                  </a>
+                </li>
+                <li
+                  class="list-group-item disabled"
+                  sec:authorize="!hasRole('ADMIN')"
+                >
+                  <a href="#">
+                    <i class="bi bi-lock-fill text-danger"></i>
+                    <span>Gestión de Usuarios (Solo ADMIN)</span>
+                  </a>
+                </li>
+
+                <li class="list-group-item" sec:authorize="hasRole('ADMIN')">
+                  <a th:href="@{/bitacora}">
+                    <i class="bi bi-journal-text"></i>
+                    <span>Ver Bitácora (Auditoría)</span>
+                  </a>
+                </li>
+                <li
+                  class="list-group-item disabled"
+                  sec:authorize="!hasRole('ADMIN')"
+                >
+                  <a href="#">
+                    <i class="bi bi-lock-fill text-danger"></i>
+                    <span>Ver Bitácora (Solo ADMIN)</span>
+                  </a>
+                </li>
+
+                <li class="list-group-item">
+                  <a th:href="@{/cliente}">
+                    <i class="bi bi-people"></i>
+                    <span>Ver Clientes</span>
+                  </a>
+                </li>
+                <li class="list-group-item">
+                  <a th:href="@{/mesa}">
+                    <i class="bi bi-table"></i>
+                    <span>Ver Mesas</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Premium -->
+    <footer class="footer-premium text-center">
+      <div class="container">
+        <small>
+          <i class="bi bi-c-circle"></i>
+          2025 Restaurante TECSUP - Sistema de Gestión
+          <i class="bi bi-dot"></i>
+          Diseñado con
+          <i class="bi bi-heart-fill text-danger"></i>
+        </small>
+      </div>
+    </footer>
+
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+  </body>
+</html>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+  lang="es"
+>
+  <head>
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <title>Todos los Pedidos</title>
+    <style>
+      /* Navbar Premium */
+      .navbar-premium {
+        background: linear-gradient(
+          135deg,
+          #2c2416 0%,
+          #3d2d1f 50%,
+          #4a3828 100%
+        );
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 1.25rem 0;
+      }
+
+      .navbar-brand {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white !important;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .navbar-brand i {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+      }
+
+      /* Page Header */
+      .page-header {
+        background: linear-gradient(
+          135deg,
+          rgba(156, 39, 176, 0.1) 0%,
+          rgba(156, 39, 176, 0.05) 100%
+        );
+        padding: 2.5rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 3px solid #9c27b0;
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        color: var(--secondary-color);
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .page-header h1 i {
+        color: #9c27b0;
+        font-size: 2.5rem;
+      }
+
+      .page-subtitle {
+        color: var(--text-light);
+        margin-top: 0.5rem;
+        font-size: 1.1rem;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Stats Bar */
+      .stats-bar {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      .stat-item {
+        flex: 1;
+        min-width: 150px;
+        text-align: center;
+        padding: 1rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+      }
+
+      .stat-item:hover {
+        transform: translateY(-5px);
+      }
+
+      .stat-item.total {
+        background: linear-gradient(
+          135deg,
+          rgba(156, 39, 176, 0.1),
+          rgba(156, 39, 176, 0.05)
+        );
+        border: 2px solid #9c27b0;
+      }
+
+      .stat-item.pendiente {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 193, 7, 0.1),
+          rgba(255, 193, 7, 0.05)
+        );
+        border: 2px solid #ffc107;
+      }
+
+      .stat-item.preparacion {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 87, 34, 0.1),
+          rgba(255, 87, 34, 0.05)
+        );
+        border: 2px solid #ff5722;
+      }
+
+      .stat-item.servido {
+        background: linear-gradient(
+          135deg,
+          rgba(76, 175, 80, 0.1),
+          rgba(76, 175, 80, 0.05)
+        );
+        border: 2px solid #4caf50;
+      }
+
+      .stat-item.cerrado {
+        background: linear-gradient(
+          135deg,
+          rgba(96, 125, 139, 0.1),
+          rgba(96, 125, 139, 0.05)
+        );
+        border: 2px solid #607d8b;
+      }
+
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-item.total .stat-value {
+        color: #9c27b0;
+      }
+      .stat-item.pendiente .stat-value {
+        color: #ffc107;
+      }
+      .stat-item.preparacion .stat-value {
+        color: #ff5722;
+      }
+      .stat-item.servido .stat-value {
+        color: #4caf50;
+      }
+      .stat-item.cerrado .stat-value {
+        color: #607d8b;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+      }
+
+      /* Action Buttons */
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .btn-action {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid;
+      }
+
+      .btn-primary-custom {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--primary-dark)
+        );
+        color: white;
+        border-color: var(--primary-color);
+      }
+
+      .btn-primary-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        color: white;
+      }
+
+      .btn-secondary-custom {
+        background: white;
+        color: var(--secondary-color);
+        border-color: #ddd;
+      }
+
+      .btn-secondary-custom:hover {
+        background: var(--secondary-color);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Botones deshabilitados */
+      .btn-action.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+        background: #e0e0e0;
+        color: #999;
+        border-color: #ccc;
+      }
+
+      .btn-action.disabled:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* Table Container */
+      .table-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      .table-premium {
+        width: 100%;
+        margin: 0;
+      }
+
+      .table-premium thead {
+        background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+      }
+
+      .table-premium thead th {
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1.25rem 1rem;
+        border: none;
+        font-size: 0.875rem;
+        white-space: nowrap;
+      }
+
+      .table-premium thead th i {
+        margin-right: 0.5rem;
+      }
+
+      .table-premium tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .table-premium tbody tr:hover {
+        background: linear-gradient(
+          90deg,
+          rgba(156, 39, 176, 0.05) 0%,
+          transparent 100%
+        );
+        transform: scale(1.005);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .table-premium tbody td {
+        padding: 1.25rem 1rem;
+        color: var(--text-dark);
+        vertical-align: middle;
+        border: none;
+      }
+
+      /* Estado Badges */
+      .badge-estado {
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .badge-pendiente {
+        background: linear-gradient(135deg, #ffc107, #ffb300);
+        color: white;
+      }
+
+      .badge-preparacion {
+        background: linear-gradient(135deg, #ff5722, #f4511e);
+        color: white;
+      }
+
+      .badge-servido {
+        background: linear-gradient(135deg, #4caf50, #388e3c);
+        color: white;
+      }
+
+      .badge-cerrado {
+        background: linear-gradient(135deg, #607d8b, #455a64);
+        color: white;
+      }
+
+      /* Total destacado */
+      .total-destacado {
+        font-weight: 700;
+        color: var(--primary-color);
+        font-size: 1.3rem;
+      }
+
+      /* Detalles list */
+      .detalles-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font-size: 0.9rem;
+      }
+
+      .detalles-list li {
+        padding: 0.3rem 0;
+        color: var(--text-light);
+      }
+
+      .detalles-list li strong {
+        color: var(--text-dark);
+      }
+
+      /* Botón factura */
+      .btn-factura {
+        background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .btn-factura:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(156, 39, 176, 0.3);
+        color: white;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-light);
+      }
+
+      .empty-state i {
+        font-size: 4rem;
+        color: #9c27b0;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      /* Responsive */
+      @media (max-width: 992px) {
+        .page-header h1 {
+          font-size: 2rem;
+        }
+
+        .stats-bar {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .table-container {
+          overflow-x: auto;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+
+        .btn-action {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark navbar-premium">
+      <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">
+          <i class="bi bi-shop-window"></i>
+          <span>Restaurante TECSUP</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="container">
+        <h1>
+          <i class="bi bi-list-check"></i>
+          Todos los Pedidos
+        </h1>
+        <p class="page-subtitle">
+          Vista general de todos los pedidos del sistema
+        </p>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container mb-5">
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat-item total">
+          <div class="stat-value" th:text="${#lists.size(pedidos)}">0</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-item pendiente">
+          <div
+            class="stat-value"
+            th:text="${#lists.size(pedidos.?[estado.name() == 'PENDIENTE'])}"
+          >
+            0
+          </div>
+          <div class="stat-label">Pendientes</div>
+        </div>
+        <div class="stat-item preparacion">
+          <div
+            class="stat-value"
+            th:text="${#lists.size(pedidos.?[estado.name() == 'EN_PREPARACION'])}"
+          >
+            0
+          </div>
+          <div class="stat-label">En Cocina</div>
+        </div>
+        <div class="stat-item servido">
+          <div
+            class="stat-value"
+            th:text="${#lists.size(pedidos.?[estado.name() == 'SERVIDO'])}"
+          >
+            0
+          </div>
+          <div class="stat-label">Servidos</div>
+        </div>
+        <div class="stat-item cerrado">
+          <div
+            class="stat-value"
+            th:text="${#lists.size(pedidos.?[estado.name() == 'CERRADO'])}"
+          >
+            0
+          </div>
+          <div class="stat-label">Cerrados</div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <a th:href="@{/}" class="btn-action btn-secondary-custom">
+          <i class="bi bi-house-door"></i>
+          Inicio
+        </a>
+
+        <!-- Nuevo Pedido - Solo MOZO y ADMIN -->
+        <a
+          th:href="@{/pedido/nuevo}"
+          class="btn-action btn-primary-custom"
+          sec:authorize="hasAnyRole('MOZO', 'ADMIN')"
+        >
+          <i class="bi bi-plus-circle"></i>
+          Nuevo Pedido
+        </a>
+        <span
+          class="btn-action btn-primary-custom disabled"
+          sec:authorize="!hasAnyRole('MOZO', 'ADMIN')"
+        >
+          <i class="bi bi-lock-fill"></i>
+          Nuevo Pedido
+        </span>
+
+        <!-- Vista Mozo - Solo MOZO y ADMIN -->
+        <a
+          th:href="@{/pedido/mozo}"
+          class="btn-action btn-secondary-custom"
+          sec:authorize="hasAnyRole('MOZO', 'ADMIN')"
+        >
+          <i class="bi bi-clipboard"></i>
+          Vista Mozo
+        </a>
+        <span
+          class="btn-action btn-secondary-custom disabled"
+          sec:authorize="!hasAnyRole('MOZO', 'ADMIN')"
+        >
+          <i class="bi bi-lock-fill"></i>
+          Vista Mozo
+        </span>
+
+        <!-- Vista Cocina - Solo COCINERO y ADMIN -->
+        <a
+          th:href="@{/pedido/cocina}"
+          class="btn-action btn-secondary-custom"
+          sec:authorize="hasAnyRole('COCINERO', 'ADMIN')"
+        >
+          <i class="bi bi-fire"></i>
+          Vista Cocina
+        </a>
+        <span
+          class="btn-action btn-secondary-custom disabled"
+          sec:authorize="!hasAnyRole('COCINERO', 'ADMIN')"
+        >
+          <i class="bi bi-lock-fill"></i>
+          Vista Cocina
+        </span>
+
+        <!-- Servidos - Solo MOZO y ADMIN -->
+        <a
+          th:href="@{/pedido/servidos}"
+          class="btn-action btn-secondary-custom"
+          sec:authorize="hasAnyRole('MOZO', 'ADMIN')"
+        >
+          <i class="bi bi-check-circle"></i>
+          Servidos
+        </a>
+        <span
+          class="btn-action btn-secondary-custom disabled"
+          sec:authorize="!hasAnyRole('MOZO', 'ADMIN')"
+        >
+          <i class="bi bi-lock-fill"></i>
+          Servidos
+        </span>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+        <table class="table-premium" th:if="${not #lists.isEmpty(pedidos)}">
+          <thead>
+            <tr>
+              <th><i class="bi bi-hash"></i>ID</th>
+              <th><i class="bi bi-person"></i>Cliente</th>
+              <th><i class="bi bi-table"></i>Mesa</th>
+              <th><i class="bi bi-clock"></i>Fecha</th>
+              <th><i class="bi bi-gear"></i>Estado</th>
+              <th><i class="bi bi-currency-dollar"></i>Total</th>
+              <th><i class="bi bi-cart"></i>Detalles</th>
+              <th style="text-align: center">
+                <i class="bi bi-file-earmark-text"></i>Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="p : ${pedidos}">
+              <td
+                style="font-weight: bold; font-size: 1.2rem"
+                th:text="${p.id}"
+              >
+                1
+              </td>
+              <td>
+                <strong
+                  th:text="${p.cliente != null ? p.cliente.getNombreCompleto() : 'Cliente General'}"
+                  >Juan Pérez</strong
+                >
+              </td>
+              <td>
+                <strong
+                  th:text="${p.mesa != null ? 'Mesa ' + p.mesa.numero : '---'}"
+                  >Mesa 5</strong
+                >
+              </td>
+              <td
+                th:text="${#temporals.format(p.fechaHora, 'dd/MM/yyyy HH:mm')}"
+              >
+                10/11/2024 14:30
+              </td>
+              <td>
+                <span
+                  th:class="'badge-estado badge-' + ${#strings.toLowerCase(p.estado.name())}"
+                >
+                  <i
+                    th:class="${p.estado.name() == 'PENDIENTE' ? 'bi bi-clock-fill' : 
+                                (p.estado.name() == 'EN_PREPARACION' ? 'bi bi-fire' : 
+                                (p.estado.name() == 'SERVIDO' ? 'bi bi-check-circle-fill' : 'bi bi-lock-fill'))}"
+                  ></i>
+                  <span th:text="${p.estado}">PENDIENTE</span>
+                </span>
+              </td>
+              <td>
+                <span
+                  class="total-destacado"
+                  th:text="'S/ ' + ${#numbers.formatDecimal(p.total, 1, 2)}"
+                  >S/ 120.00</span
+                >
+              </td>
+              <td>
+                <ul class="detalles-list">
+                  <li th:each="d : ${p.detalles}">
+                    <strong th:text="${d.cantidad}">2</strong>x
+                    <span th:text="${d.plato.nombre}">Lomo Saltado</span>
+                  </li>
+                </ul>
+              </td>
+              <td style="text-align: center">
+                <a
+                  th:if="${p.estado.name() == 'CERRADO'}"
+                  th:href="@{/pedido/{id}/factura(id=${p.id})}"
+                  class="btn-factura"
+                >
+                  <i class="bi bi-file-earmark-pdf"></i>
+                  Ver Factura
+                </a>
+                <span
+                  th:unless="${p.estado.name() == 'CERRADO'}"
+                  style="color: #ccc; font-size: 0.85rem"
+                >
+                  ---
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div class="empty-state" th:if="${#lists.isEmpty(pedidos)}">
+          <i class="bi bi-inbox"></i>
+          <h3>No hay pedidos registrados</h3>
+          <p>Comienza creando un nuevo pedido</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+  </body>
+</html>

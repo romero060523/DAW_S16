@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+  <head>
+    <th:block th:replace="~{fragments/head :: head}"></th:block>
+    <title>Crear Pedido</title>
+    <style>
+      /* Navbar Premium */
+      .navbar-premium {
+        background: linear-gradient(
+          135deg,
+          #2c2416 0%,
+          #3d2d1f 50%,
+          #4a3828 100%
+        );
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 1.25rem 0;
+      }
+
+      .navbar-brand {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white !important;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .navbar-brand i {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+      }
+
+      /* Page Header */
+      .page-header {
+        background: linear-gradient(
+          135deg,
+          rgba(76, 175, 80, 0.1) 0%,
+          rgba(76, 175, 80, 0.05) 100%
+        );
+        padding: 2.5rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 3px solid #4caf50;
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        color: var(--secondary-color);
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .page-header h1 i {
+        color: #4caf50;
+        font-size: 2.5rem;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Form Container */
+      .form-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        padding: 2.5rem;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px dashed rgba(0, 0, 0, 0.1);
+      }
+
+      .form-section:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .form-section-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        color: var(--secondary-color);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .form-section-title i {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+      }
+
+      /* Form Groups */
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        font-weight: 600;
+        color: var(--secondary-color);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+      }
+
+      .form-label i {
+        color: var(--primary-color);
+        font-size: 1.2rem;
+      }
+
+      .form-select,
+      .form-control {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+      }
+
+      .form-select:focus,
+      .form-control:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+      }
+
+      /* Detalles Table */
+      .detalles-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 0.75rem;
+      }
+
+      .detalles-table thead th {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--primary-dark)
+        );
+        color: white;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+      }
+
+      .detalles-table thead th:first-child {
+        border-radius: 12px 0 0 12px;
+      }
+
+      .detalles-table thead th:last-child {
+        border-radius: 0 12px 12px 0;
+      }
+
+      .detalles-table tbody tr {
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+      }
+
+      .detalles-table tbody tr:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .detalles-table tbody td {
+        padding: 1rem;
+        background: #fafafa;
+      }
+
+      .detalles-table tbody td:first-child {
+        border-radius: 12px 0 0 12px;
+      }
+
+      .detalles-table tbody td:last-child {
+        border-radius: 0 12px 12px 0;
+      }
+
+      .detalles-table tbody td .form-select,
+      .detalles-table tbody td .form-control {
+        margin: 0;
+      }
+
+      /* Action Buttons */
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .btn-action {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .btn-submit {
+        background: linear-gradient(135deg, #4caf50, #388e3c);
+        color: white;
+      }
+
+      .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+        background: linear-gradient(135deg, #388e3c, #2e7d32);
+      }
+
+      .btn-cancel {
+        background: linear-gradient(135deg, #9e9e9e, #757575);
+        color: white;
+      }
+
+      .btn-cancel:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        background: linear-gradient(135deg, #757575, #616161);
+      }
+
+      /* Info Box */
+      .info-box {
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        border-left: 5px solid #2196f3;
+        padding: 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .info-box i {
+        font-size: 1.5rem;
+        color: #2196f3;
+        margin-top: 0.25rem;
+      }
+
+      .info-box-content {
+        flex: 1;
+      }
+
+      .info-box-content strong {
+        color: #1976d2;
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      .info-box-content ul {
+        margin: 0.5rem 0 0 0;
+        padding-left: 1.5rem;
+        color: #555;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .form-container {
+          padding: 1.5rem;
+        }
+
+        .page-header h1 {
+          font-size: 2rem;
+        }
+
+        .detalles-table {
+          font-size: 0.9rem;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+
+        .btn-action {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark navbar-premium">
+      <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">
+          <i class="bi bi-shop-window"></i>
+          <span>Restaurante TECSUP</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="container">
+        <h1>
+          <i class="bi bi-plus-circle-fill"></i>
+          Crear Nuevo Pedido
+        </h1>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container mb-5">
+      <!-- Info Box -->
+      <div class="info-box">
+        <i class="bi bi-info-circle-fill"></i>
+        <div class="info-box-content">
+          <strong>Instrucciones para crear un pedido:</strong>
+          <ul>
+            <li>Selecciona el cliente y la mesa</li>
+            <li>Elige el tipo de servicio (Mesa, Delivery o Para Llevar)</li>
+            <li>Agrega hasta 3 platos con sus cantidades</li>
+            <li>El pedido se creará en estado PENDIENTE</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="form-container">
+        <form th:action="@{/pedido/crear}" th:object="${pedido}" method="post">
+          <!-- Sección: Información General -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <i class="bi bi-info-square"></i>
+              Información General
+            </h2>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="bi bi-person"></i>
+                    Cliente
+                  </label>
+                  <select class="form-select" th:field="*{cliente.id}" required>
+                    <option value="">-- Seleccionar Cliente --</option>
+                    <option
+                      th:each="c : ${clientes}"
+                      th:value="${c.id}"
+                      th:text="${c.nombres} + ' ' + ${c.apellidos}"
+                    ></option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="bi bi-table"></i>
+                    Mesa
+                  </label>
+                  <select class="form-select" th:field="*{mesa.id}" required>
+                    <option value="">-- Seleccionar Mesa --</option>
+                    <option
+                      th:each="m : ${mesas}"
+                      th:value="${m.id}"
+                      th:text="'Mesa ' + ${m.numero} + ' (Capacidad: ' + ${m.capacidad} + ' personas)'"
+                    ></option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-gear"></i>
+                Tipo de Servicio
+              </label>
+              <select class="form-select" th:field="*{tipoServicio}" required>
+                <option value="">-- Seleccionar Tipo --</option>
+                <option th:value="MESA">
+                  🍽️ Mesa (servicio en el restaurante)
+                </option>
+                <option th:value="DELIVERY">
+                  🚚 Delivery (entrega a domicilio)
+                </option>
+                <option th:value="PARA_LLEVAR">
+                  📦 Para Llevar (recoger en local)
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Sección: Detalles del Pedido -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <i class="bi bi-cart-fill"></i>
+              Detalles del Pedido
+            </h2>
+
+            <table class="detalles-table">
+              <thead>
+                <tr>
+                  <th><i class="bi bi-dish"></i> Plato</th>
+                  <th style="width: 150px">
+                    <i class="bi bi-hash"></i> Cantidad
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="d,iterStat : *{detalles}">
+                  <td>
+                    <select
+                      class="form-select"
+                      th:field="*{detalles[__${iterStat.index}__].plato.id}"
+                    >
+                      <option value="">-- Seleccionar Plato --</option>
+                      <option
+                        th:each="p : ${platos}"
+                        th:value="${p.id}"
+                        th:text="${p.nombre} + ' (S/ ' + ${#numbers.formatDecimal(p.precio, 1, 2)} + ')'"
+                      ></option>
+                    </select>
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      class="form-control"
+                      min="0"
+                      max="20"
+                      placeholder="0"
+                      th:field="*{detalles[__${iterStat.index}__].cantidad}"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <a th:href="@{/pedido}" class="btn-action btn-cancel">
+              <i class="bi bi-x-circle"></i>
+              Cancelar
+            </a>
+            <button type="submit" class="btn-action btn-submit">
+              <i class="bi bi-check-circle"></i>
+              Crear Pedido
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+  </body>
+</html>
